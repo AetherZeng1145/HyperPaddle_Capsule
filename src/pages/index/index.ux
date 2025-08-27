@@ -1,0 +1,529 @@
+<template>
+  <div class="container">
+    <!-- 顶部菜单按钮 - 现在用于切换关于页面 -->
+    <div class="header">
+      <div class="menu-area" onclick="toggleAbout">
+        <div class="menu-dots">
+          <text class="dot">•</text>
+          <text class="dot">•</text>
+          <text class="dot">•</text>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 游戏主内容区域 -->
+    <div class="main-content" if="{{!showAbout}}">
+      <!-- 游戏区域 -->
+      <div class="game-area" id="game-area">
+        <!-- 中线 -->
+        <div class="center-line"></div>
+        <!-- 球 -->
+        <div class="ball" style="{{ballStyle}}"></div>
+        <!-- 玩家球拍 -->
+        <div class="paddle player-paddle" style="{{playerPaddleStyle}}"></div>
+        <!-- 电脑球拍 -->
+        <div class="paddle computer-paddle" style="{{computerPaddleStyle}}"></div>
+        <!-- 得分显示 -->
+        <text class="score">{{$t('score')}}: {{playerScore}} - {{computerScore}}</text>
+        <!-- 游戏结束提示 -->
+        <text class="game-over" if="{{gameOver}}">{{gameOverText}}</text>
+        
+        <!-- 长按控制区域（不可见） -->
+        <div class="control-area top-control" ontouchstart="startMoveUp" ontouchend="stopMove"></div>
+        <div class="control-area bottom-control" ontouchstart="startMoveDown" ontouchend="stopMove"></div>
+      </div>
+      
+      <!-- 游戏名称 -->
+      <text class="game-title">HyperPaddle</text>
+      
+      <!-- 按钮区域 -->
+      <div class="menu">
+        <input type="button" class="btn start-btn" value="{{gameRunning ? $t('pauseGame') : $t('startGame')}}" onclick="toggleGame" />
+        <input type="button" class="btn restart-btn" value="{{$t('restart')}}" onclick="restartGame" if="{{gameOver || gameRunning}}" />
+      </div>
+    </div>
+    
+    <!-- 关于页面内容 -->
+    <div class="about-content" if="{{showAbout}}">
+      <div class="about-card">
+        <text class="about-title">关于 HyperPaddle</text>
+        <text class="about-text">开发者：@Aether空 @Methodamaze</text>
+        <div class="about-divider"></div>
+        <text class="about-tips">这是作为HyperSurf延迟发布的补偿</text>
+        
+        <div class="about-features">
+          <text class="feature-title">游戏特点</text>
+          <div class="feature-item">
+            <text class="feature-dot">•</text>
+            <text class="feature-text">经典乒乓球玩法</text>
+          </div>
+          <div class="feature-item">
+            <text class="feature-dot">•</text>
+            <text class="feature-text">适配跑道屏</text>
+          </div>
+          <div class="feature-item">
+            <text class="feature-dot">•</text>
+            <text class="feature-text">智能AI对手</text>
+          </div>
+          <div class="feature-item">
+            <text class="feature-dot">•</text>
+            <text class="feature-text">长按控制</text>
+          </div>
+        </div>
+        
+        <input type="button" class="btn back-btn" value="返回游戏" onclick="toggleAbout" />
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  .container {
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    padding: 5px 0;
+  }
+
+  .header {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    margin-bottom: 5px;
+  }
+
+  .menu-area {
+    width: 50px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .menu-dots {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dot {
+    font-size: 16px;
+    color: #fff;
+    margin: 0 1px;
+  }
+
+  .main-content {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .game-area {
+    width: 192px;
+    height: 320px;
+    border: 1px solid #333;
+    position: relative;
+    overflow: hidden;
+    background-color: #000;
+    margin: 5px 0;
+  }
+
+  .center-line {
+    position: absolute;
+    left: 96px;
+    top: 0;
+    height: 100%;
+    width: 1px;
+    background-color: #333;
+  }
+
+  .ball {
+    width: 6px;
+    height: 6px;
+    background-color: #fff;
+    border-radius: 3px;
+    position: absolute;
+  }
+
+  .paddle {
+    width: 5px;
+    height: 30px;
+    background-color: #fff;
+    position: absolute;
+  }
+
+  .player-paddle {
+    left: 5px;
+  }
+
+  .computer-paddle {
+    right: 5px;
+  }
+
+  .score {
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    font-size: 12px;
+    z-index: 10;
+  }
+
+  .game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    z-index: 10;
+  }
+
+  .control-area {
+    position: absolute;
+    left: 0;
+    width: 96px;
+    height: 160px;
+    z-index: 5;
+  }
+
+  .top-control {
+    top: 0;
+  }
+
+  .bottom-control {
+    bottom: 0;
+  }
+
+  .game-title {
+    font-size: 14px;
+    color: #fff;
+    margin: 5px 0;
+  }
+
+  .menu {
+    flex-direction: column;
+    align-items: center;
+    margin-top: 5px;
+  }
+
+  .btn {
+    width: 120px;
+    height: 25px;
+    border-radius: 12px;
+    background-color: #333;
+    color: #fff;
+    font-size: 10px;
+    margin-top: 5px;
+  }
+
+  .start-btn {
+    background-color: #4CAF50;
+  }
+
+  .restart-btn {
+    background-color: #FF9800;
+  }
+
+  .about-content {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+  }
+
+  .about-card {
+    flex-direction: column;
+    align-items: center;
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    padding: 10px;
+    width: 90%;
+  }
+
+  .about-title {
+    font-size: 14px;
+    color: #4CAF50;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .about-text {
+    font-size: 10px;
+    color: #fff;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .about-divider {
+    width: 80%;
+    height: 1px;
+    background-color: #333;
+    margin-bottom: 8px;
+  }
+
+  .about-tips {
+    font-size: 9px;
+    color: #888;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .about-features {
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .feature-title {
+    font-size: 12px;
+    color: #2196F3;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .feature-item {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .feature-dot {
+    font-size: 9px;
+    color: #4CAF50;
+    margin-right: 4px;
+  }
+
+  .feature-text {
+    font-size: 9px;
+    color: #fff;
+  }
+
+  .back-btn {
+    background-color: #2196F3;
+    width: 120px;
+    height: 25px;
+    font-size: 10px;
+  }
+</style>
+
+<script>
+  // 直接导入JSON文件，避免模块解析问题
+  const defaults = require('../../i18n/defaults.json')
+  const zhCN = require('../../i18n/zh-CN.json')
+  
+  // 设置默认语言为中文
+  const messages = zhCN || defaults
+  
+  export default {
+    data: {
+      ballX: 96,
+      ballY: 160,
+      ballSpeedX: 2,
+      ballSpeedY: 2,
+      playerPaddleY: 145,
+      computerPaddleY: 145,
+      playerScore: 0,
+      computerScore: 0,
+      gameRunning: false,
+      gameOver: false,
+      gameOverText: "",
+      gameInterval: null,
+      moveInterval: null,
+      ballStyle: "left: 93px; top: 157px;",
+      playerPaddleStyle: "top: 145px;",
+      computerPaddleStyle: "top: 145px;",
+      showAbout: false, // 控制是否显示关于页面
+      moveDirection: 0 // 0: 停止, 1: 上移, -1: 下移
+    },
+    onInit() {
+      // 定义$t函数
+      this.$t = (key) => {
+        return messages[key] || defaults[key] || key
+      }
+      
+      // 初始化游戏结束文本的翻译
+      this.youWinText = this.$t('youWin')
+      this.computerWinsText = this.$t('computerWins')
+      this.gameOverTextValue = this.$t('gameOver')
+    },
+    onReady() {
+      // 页面就绪
+    },
+    onDestroy() {
+      if (this.gameInterval) {
+        clearInterval(this.gameInterval)
+      }
+      if (this.moveInterval) {
+        clearInterval(this.moveInterval)
+      }
+    },
+    toggleAbout() {
+      // 切换关于页面显示状态
+      this.showAbout = !this.showAbout
+      
+      // 如果切换到关于页面，暂停游戏
+      if (this.showAbout) {
+        this.pauseGame()
+      }
+    },
+    toggleGame() {
+      if (this.gameRunning) {
+        this.pauseGame()
+      } else {
+        this.startGame()
+      }
+    },
+    startGame() {
+      // 如果游戏已结束，重置游戏
+      if (this.gameOver) {
+        this.playerScore = 0
+        this.computerScore = 0
+        this.gameOver = false
+        this.gameOverText = ""
+      }
+      
+      this.ballX = 96
+      this.ballY = 160
+      this.ballSpeedX = (Math.random() > 0.5 ? 1 : -1) * 2
+      this.ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 2
+      this.playerPaddleY = 145
+      this.computerPaddleY = 145
+      this.gameRunning = true
+
+      if (this.gameInterval) {
+        clearInterval(this.gameInterval)
+      }
+      this.gameInterval = setInterval(() => {
+        this.updateGame()
+      }, 16)
+    },
+    pauseGame() {
+      this.gameRunning = false
+      if (this.gameInterval) {
+        clearInterval(this.gameInterval)
+        this.gameInterval = null
+      }
+    },
+    restartGame() {
+      this.playerScore = 0
+      this.computerScore = 0
+      this.gameOver = false
+      this.gameOverText = ""
+      this.startGame()
+    },
+    updateGame() {
+      if (!this.gameRunning) return
+
+      // 更新球的位置
+      this.ballX += this.ballSpeedX
+      this.ballY += this.ballSpeedY
+
+      // 球碰到上下边界
+      if (this.ballY <= 3 || this.ballY >= 317) {
+        this.ballSpeedY = -this.ballSpeedY
+      }
+
+      // 球碰到左右边界（得分）
+      if (this.ballX <= 3) {
+        this.computerScore++
+        this.resetBall()
+        return
+      } else if (this.ballX >= 189) {
+        this.playerScore++
+        this.resetBall()
+        return
+      }
+
+      // 球碰到玩家球拍
+      if (this.ballX <= 10 && this.ballX >= 6 && 
+          this.ballY >= this.playerPaddleY && this.ballY <= this.playerPaddleY + 30) {
+        this.ballSpeedX = Math.abs(this.ballSpeedX)
+        let hitPoint = (this.ballY - this.playerPaddleY) / 30
+        this.ballSpeedY = (hitPoint - 0.5) * 4
+      }
+
+      // 球碰到电脑球拍
+      if (this.ballX >= 182 && this.ballX <= 186 && 
+          this.ballY >= this.computerPaddleY && this.ballY <= this.computerPaddleY + 30) {
+        this.ballSpeedX = -Math.abs(this.ballSpeedX)
+        let hitPoint = (this.ballY - this.computerPaddleY) / 30
+        this.ballSpeedY = (hitPoint - 0.5) * 4
+      }
+
+      // 电脑AI - 简单跟随球
+      if (this.computerPaddleY + 15 < this.ballY - 3) {
+        this.computerPaddleY += 2
+      } else if (this.computerPaddleY + 15 > this.ballY + 3) {
+        this.computerPaddleY -= 2
+      }
+
+      // 确保电脑球拍不超出边界
+      if (this.computerPaddleY < 0) {
+        this.computerPaddleY = 0
+      } else if (this.computerPaddleY > 290) {
+        this.computerPaddleY = 290
+      }
+
+      // 更新玩家球拍位置（根据长按控制）
+      if (this.moveDirection !== 0) {
+        let newPaddleY = this.playerPaddleY + (this.moveDirection * 3)
+        
+        // 确保玩家球拍不超出边界
+        if (newPaddleY < 0) {
+          newPaddleY = 0
+        } else if (newPaddleY > 290) {
+          newPaddleY = 290
+        }
+        
+        this.playerPaddleY = newPaddleY
+        this.playerPaddleStyle = `top: ${this.playerPaddleY}px;`
+      }
+
+      // 更新样式
+      this.ballStyle = `left: ${this.ballX - 3}px; top: ${this.ballY - 3}px;`
+      this.computerPaddleStyle = `top: ${this.computerPaddleY}px;`
+    },
+    resetBall() {
+      this.ballX = 96
+      this.ballY = 160
+      this.ballSpeedX = (Math.random() > 0.5 ? 1 : -1) * 2
+      this.ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * 2
+
+      // 检查游戏是否结束
+      if (this.playerScore >= 11 || this.computerScore >= 11) {
+        this.gameRunning = false
+        this.gameOver = true
+        
+        if (this.playerScore >= 11) {
+          this.gameOverText = `${this.gameOverTextValue}! ${this.youWinText}`
+        } else {
+          this.gameOverText = `${this.gameOverTextValue}! ${this.computerWinsText}`
+        }
+        
+        clearInterval(this.gameInterval)
+        this.gameInterval = null
+      }
+    },
+    startMoveUp() {
+      if (this.gameRunning && !this.showAbout) {
+        this.moveDirection = -1 // 上移
+      }
+    },
+    startMoveDown() {
+      if (this.gameRunning && !this.showAbout) {
+        this.moveDirection = 1 // 下移
+      }
+    },
+    stopMove() {
+      this.moveDirection = 0 // 停止移动
+    }
+  }
+</script>

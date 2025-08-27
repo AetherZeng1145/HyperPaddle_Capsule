@@ -1,0 +1,23 @@
+{
+    "gameTitle": "HyperPaddle",
+    "startGame": "Start Game",
+    "pauseGame": "Pause Game",
+    "resumeGame": "Resume Game",
+    "settings": "Settings",
+    "score": "Score",
+    "player": "Player",
+    "computer": "Computer",
+    "gameOver": "Game Over",
+    "youWin": "You Win!",
+    "computerWins": "Computer Wins!",
+    "detailPageTitle": "About",
+    "detailContent": "HyperPaddle, Developer: @Aether空/@Method",
+    "detailTips": "This is a compensation for the delayed release of HyperSurf",
+    "version": "Version 1.0.0",
+    "featuresTitle": "Game Features",
+    "feature1": "Classic ping pong gameplay",
+    "feature2": "Adapted for circular screen",
+    "feature3": "Smart AI opponent",
+    "feature4": "Touch control",
+    "backToGame": "Back to Game"
+  }
